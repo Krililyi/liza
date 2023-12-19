@@ -1,0 +1,61 @@
+-- Создание хаба для клиентов
+CREATE TABLE Hub_Customers (
+    hub_id SERIAL PRIMARY KEY,
+    customer_id VARCHAR(50) NOT NULL,
+    load_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    record_source VARCHAR(255) NOT NULL
+);
+
+-- Создание хаба для товаров
+CREATE TABLE Hub_Products (
+    hub_id SERIAL PRIMARY KEY,
+    product_id VARCHAR(50) NOT NULL,
+    load_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    record_source VARCHAR(255) NOT NULL
+);
+
+-- Создание хаба для заказов
+CREATE TABLE Hub_Orders (
+    hub_id SERIAL PRIMARY KEY,
+    order_id VARCHAR(50) NOT NULL,
+    load_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    record_source VARCHAR(255) NOT NULL
+);
+
+-- Создание линка для связи заказов и клиентов
+CREATE TABLE Link_CustomerOrder (
+    link_id SERIAL PRIMARY KEY,
+    customer_hub_id INT REFERENCES Hub_Customers(hub_id),
+    order_hub_id INT REFERENCES Hub_Orders(hub_id),
+    load_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    record_source VARCHAR(255) NOT NULL
+);
+
+-- Создание линка для связи заказов и товаров
+CREATE TABLE Link_OrderProduct (
+    link_id SERIAL PRIMARY KEY,
+    order_hub_id INT REFERENCES Hub_Orders(hub_id),
+    product_hub_id INT REFERENCES Hub_Products(hub_id),
+    load_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    record_source VARCHAR(255) NOT NULL
+);
+
+-- Создание спутника для заказов
+CREATE TABLE Satellite_Orders (
+    satellite_id SERIAL PRIMARY KEY,
+    link_id INT REFERENCES Link_CustomerOrder(link_id),
+    order_date DATE NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    load_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    record_source VARCHAR(255) NOT NULL
+);
+
+-- Создание спутника для позиций заказа
+CREATE TABLE Satellite_OrderItems (
+    satellite_id SERIAL PRIMARY KEY,
+    link_id INT REFERENCES Link_OrderProduct(link_id),
+    quantity INT NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    load_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    record_source VARCHAR(255) NOT NULL
+);
